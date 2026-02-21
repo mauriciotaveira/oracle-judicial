@@ -22,12 +22,14 @@ try:
 try:
     # O comando abaixo NÃO deve ter o código AIza...
     # Ele deve ter apenas o NOME que você salvou no painel do Streamlit
-    MINHA_CHAVE = st.secrets["AIzaSyAKLtUNtd6mrwP11Tj1YGC5vZu6F1U0yQo"] 
-    
+    # FORMA CORRETA (Copie e cole estas 3 linhas)
+try:
+    # O segredo é chamar pelo NOME "GOOGLE_API_KEY", não pelo valor AIza...
+    MINHA_CHAVE = st.secrets["GOOGLE_API_KEY"] 
     client_gemini = genai.Client(api_key=MINHA_CHAVE)
     MODELO_IA = "gemini-2.5-flash"
 except Exception as e:
-    st.error("O Oráculo está offline. Verifique a nova chave nos Secrets.")
+    st.error("Erro na Chave API. Verifique os Secrets no painel do Streamlit.")
     st.stop()
     
     # MOTOR DE FÓRMULA 1 ATIVADO: Gemini 2.5 Flash
