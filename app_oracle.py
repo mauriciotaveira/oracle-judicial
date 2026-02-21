@@ -22,18 +22,18 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Lógica de Segurança e Instrução de Sistema (System Instruction)
+# 3. Lógica de Segurança e Instrução de Sistema (Refinada para Auditoria)
 try:
     MINHA_CHAVE = st.secrets["GOOGLE_API_KEY"]
     client_gemini = genai.Client(api_key=MINHA_CHAVE)
     
-    # DEFINIÇÃO DO PERSONAGEM ESTRATÉGICO
     INSTRUCAO_SISTEMA = (
-        "Você é o Oracle Judicial PRO, uma IA de elite especializada em análise estratégica de processos judiciais. "
-        "Sua missão é ler documentos jurídicos e fornecer pareceres técnicos, sóbrios e altamente precisos. "
-        "Ao responder: 1) Seja formal e direto. 2) Se encontrar contradições, destaque-as. "
-        "3) Organize sua resposta em seções: 'RESUMO EXECUTIVO', 'PONTOS CRÍTICOS/RISCOS' e 'SUGESTÃO ESTRATÉGICA'. "
-        "Sempre baseie suas conclusões exclusivamente nos documentos fornecidos."
+        "Você é o Oracle Judicial PRO, um auditor jurídico de alta performance. "
+        "Sua análise deve ser cirúrgica e imparcial. "
+        "DIRETRIZES: 1) Identifique contradições sutis entre documentos (valores, termos, limites). "
+        "2) Use tabelas ou listas para comparar dados divergentes. "
+        "3) Comece sempre com um 'Prezado(a) Consulente' e adote um tom de Parecer Técnico. "
+        "4) Estruture em: RESUMO EXECUTIVO, PONTOS CRÍTICOS/DIVERGÊNCIAS e SUGESTÃO ESTRATÉGICA."
     )
     
     MODELO_IA = "gemini-2.5-flash" 
@@ -58,9 +58,9 @@ st.markdown('<p class="subtitle">INTELIGÊNCIA JURÍDICA DE ALTA PERFORMANCE</p>
 
 with st.expander("📖 Guia de Utilização Rápida", expanded=True):
     st.markdown("""
-    * **Carregamento:** Arraste os arquivos PDF do processo abaixo.
-    * **Análise:** Descreva o que você busca identificar nos autos.
-    * **Processamento:** O motor 2.5 Flash aplicará a diretriz estratégica ao conteúdo.
+    * **Carregamento:** Arraste os PDFs (contratos, petições, laudos) abaixo.
+    * **Análise:** Solicite comparações, resumos ou busca de nulidades.
+    * **Rigor:** O sistema cruzará cláusulas e dados com precisão de auditoria.
     """)
 
 st.write("---")
@@ -68,27 +68,26 @@ st.subheader("📂 Central de Documentos")
 arquivos_pdf = st.file_uploader("Upload", type="pdf", accept_multiple_files=True, label_visibility="collapsed")
 
 st.subheader("⚖️ Teses e Requerimentos")
-user_prompt = st.text_area("Descreva a análise técnica:", placeholder="Ex: Analise o depoimento da testemunha X em face da petição inicial...", height=150)
+user_prompt = st.text_area("Descreva a análise técnica:", placeholder="Ex: Compare os dois contratos e aponte todas as divergências de cláusulas...", height=150)
 
-# 5. Ação com System Instruction integrada
+# 5. Ação
 if st.button("INICIAR ANÁLISE"):
     if not arquivos_pdf or not user_prompt:
         st.warning("Aguardando documentos e instruções.")
     else:
-        with st.spinner("⏳ Oráculo processando sob diretrizes estratégicas..."):
+        with st.spinner("⏳ Oráculo realizando auditoria cruzada..."):
             contexto = extrair_texto(arquivos_pdf)
             if len(contexto.strip()) < 10:
                 st.error("Falha na leitura dos documentos.")
             else:
                 try:
-                    # O Motor 2.5 Flash agora recebe a instrução de sistema
                     response = client_gemini.models.generate_content(
                         model=MODELO_IA,
-                        contents=[f"INSTRUÇÃO DE SISTEMA: {INSTRUCAO_SISTEMA}", f"CONTEXTO DOS AUTOS: {contexto}", f"PEDIDO DO USUÁRIO: {user_prompt}"],
+                        contents=[f"{INSTRUCAO_SISTEMA}", f"CONTEXTO: {contexto}", f"SOLICITAÇÃO: {user_prompt}"],
                         config={"temperature": 0.1}
                     )
-                    st.markdown("### 📜 Parecer Estratégico")
-                    st.write(response.text)
+                    st.markdown("### 📜 Parecer Técnico do Oráculo")
+                    st.markdown(response.text) # Usando markdown para renderizar melhor as tabelas
                 except Exception as e:
                     st.error(f"Erro: {e}")
 
