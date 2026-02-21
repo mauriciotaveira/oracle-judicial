@@ -18,8 +18,17 @@ st.markdown("""
 # 3. Lógica da Chave API (Corrigida para usar o nome da gaveta nos Secrets)
 try:
     # Aqui usamos o nome da variável configurada no Streamlit Cloud
-    MINHA_CHAVE = st.secrets["AIzaSyD5RwWRI0RIu40gL82RJTYsmH56WQKCGGA"]
+    # NO VS CODE (app_oracle.py)
+try:
+    # O comando abaixo NÃO deve ter o código AIza...
+    # Ele deve ter apenas o NOME que você salvou no painel do Streamlit
+    MINHA_CHAVE = st.secrets["AIzaSyAKLtUNtd6mrwP11Tj1YGC5vZu6F1U0yQo"] 
+    
     client_gemini = genai.Client(api_key=MINHA_CHAVE)
+    MODELO_IA = "gemini-2.5-flash"
+except Exception as e:
+    st.error("O Oráculo está offline. Verifique a nova chave nos Secrets.")
+    st.stop()
     
     # MOTOR DE FÓRMULA 1 ATIVADO: Gemini 2.5 Flash
     MODELO_IA = "gemini-2.5-flash" 
