@@ -17,16 +17,20 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # 3. Lógica da Chave (Aqui estava o erro!)
+# Substitua o bloco da chave (Linha 20 a 30) por este:
 try:
-    # O código busca o NOME da gaveta, não o valor da chave direto
-    MINHA_CHAVE = st.secrets["AIzaSyD5RwWRI0RIu40gL82RJTYsmH56WQKCGGA"]
-    client_gemini = genai.Client(api_key=MINHA_CHAVE)
-    MODELO_IA = "gemini-2.0-flash"
+    # Ele tenta pegar QUALQUER coisa que você tenha escrito nos Secrets
+    valores = list(st.secrets.values())
+    if valores:
+        # Pega o primeiro valor e limpa aspas extras ou espaços
+        MINHA_CHAVE = str(valores[0]).replace('"', '').replace("'", "").strip()
+        client_gemini = genai.Client(api_key=MINHA_CHAVE)
+        MODELO_IA = "gemini-2.0-flash"
+    else:
+        raise ValueError("Secrets vazio")
 except Exception as e:
-    st.error("⚠️ Configuração Pendente: A chave API não foi encontrada nos Secrets.")
-    st.info("No painel do Streamlit (Settings > Secrets), verifique se está assim: GOOGLE_API_KEY = 'SUA_CHAVE'")
+    st.error(f"Erro: {e}")
     st.stop()
-
 # 4. Interface do Usuário
 st.markdown("<h1>💼 Oracle Judicial - PRO</h1>", unsafe_allow_html=True)
 st.markdown("<h3>Auditoria Cruzada e Exportação de Pareceres ⚖️</h3>", unsafe_allow_html=True)
