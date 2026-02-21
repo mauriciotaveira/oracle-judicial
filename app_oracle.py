@@ -1,8 +1,7 @@
 import streamlit as st
 from google import genai
-import os
 
-# 1. Configuração de Página (DEVE ser a primeira coisa)
+# 1. Configuração de Página
 st.set_page_config(page_title="Oracle Judicial - PRO", page_icon="💼", layout="centered")
 
 # 2. CSS para Limpar a Interface
@@ -17,28 +16,16 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Lógica de Captura da Chave (O "Coração" do problema)
-MINHA_CHAVE = None
-
-# Tentativa A: Buscar nos Secrets do Streamlit
-if "GOOGLE_API_KEY" in st.secrets:
+# 3. Lógica da Chave (Aqui estava o erro!)
+try:
+    # O código busca o NOME da gaveta, não o valor da chave direto
     MINHA_CHAVE = st.secrets["AIzaSyD5RwWRI0RIu40gL82RJTYsmH56WQKCGGA"]
-# Tentativa B: Buscar qualquer chave que exista nos Secrets (caso o nome esteja levemente diferente)
-elif len(st.secrets) > 0:
-    MINHA_CHAVE = list(st.secrets.values())[0]
-
-# Verificação Final
-if not MINHA_CHAVE:
-    st.error("⚠️ Erro: Chave API não encontrada nos Secrets do Streamlit.")
-    st.info("💡 Como resolver: Vá em Settings > Secrets e cole: GOOGLE_API_KEY = 'SUA_CHAVE'")
+    client_gemini = genai.Client(api_key=MINHA_CHAVE)
+    MODELO_IA = "gemini-2.0-flash"
+except Exception as e:
+    st.error("⚠️ Configuração Pendente: A chave API não foi encontrada nos Secrets.")
+    st.info("No painel do Streamlit (Settings > Secrets), verifique se está assim: GOOGLE_API_KEY = 'SUA_CHAVE'")
     st.stop()
-else:
-    try:
-        client_gemini = genai.Client(api_key=MINHA_CHAVE)
-        MODELO_IA = "gemini-2.0-flash"
-    except Exception as e:
-        st.error(f"Erro ao conectar com o Google: {e}")
-        st.stop()
 
 # 4. Interface do Usuário
 st.markdown("<h1>💼 Oracle Judicial - PRO</h1>", unsafe_allow_html=True)
@@ -60,7 +47,6 @@ if st.button("Gerar Parecer Estratégico"):
         st.warning("Por favor, digite sua pergunta.")
     else:
         with st.spinner("Processando cognição jurídica..."):
-            # O processamento virá aqui após a correção da conexão
             st.success("Conexão com Gemini estabelecida com sucesso!")
             st.info("Sistema pronto para análise.")
 
