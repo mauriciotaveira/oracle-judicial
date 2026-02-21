@@ -1,58 +1,89 @@
 import streamlit as st
 from google import genai
+from pypdf import PdfReader # Ajustado para pypdf conforme seu requirements
+import pandas as pd
 
 # 1. Configuração de Página
 st.set_page_config(page_title="Oracle Judicial - PRO", page_icon="💼", layout="centered")
 
-# 2. CSS para Limpar a Interface
+# 2. CSS de Limpeza
 st.markdown("""
     <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    .stAppDeployButton {display:none;}
-    [data-testid="stHeader"] {visibility: hidden;}
-    .block-container {padding-top: 1rem;}
+    [data-testid="stHeader"], header, footer, .stAppDeployButton, #MainMenu {visibility: hidden; display: none;}
+    .block-container {padding-top: 2rem !important;}
+    .main-title {color: #1E3A8A; font-size: 32px; font-weight: bold; text-align: center;}
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Lógica da Chave (Aqui estava o erro!)
-# Substitua o bloco da chave (Linha 20 a 30) por este:
+# 3. Lógica da Chave API
 try:
-    # Ele tenta pegar QUALQUER coisa que você tenha escrito nos Secrets
-    valores = list(st.secrets.values())
-    if valores:
-        # Pega o primeiro valor e limpa aspas extras ou espaços
-        MINHA_CHAVE = str(valores[0]).replace('"', '').replace("'", "").strip()
-        client_gemini = genai.Client(api_key=MINHA_CHAVE)
-        MODELO_IA = "gemini-2.0-flash"
-    else:
-        raise ValueError("Secrets vazio")
-except Exception as e:
-    st.error(f"Erro: {e}")
+    MINHA_CHAVE = st.secrets["AIzaSyD5RwWRI0RIu40gL82RJTYsmH56WQKCGGA"]
+    client_gemini = genai.Client(api_key=MINHA_CHAVE)
+    MODELO_IA = "gemini-2.0-flash"
+except:
+    st.error("Erro na Chave API.")
     st.stop()
+
+# --- FUNÇÃO DE EXTRAÇÃO (USANDO PYPDF) ---
+def extrair_texto_pdf(arquivos_pdf):
+    texto_completo = ""
+    for pdf in arquivos_pdf:
+        try:
+            leitor = PdfReader(pdf)
+            for pagina in leitor.pages:
+                conteudo = pagina.extract_text()
+                if conteudo:
+                    texto_completo += conteudo + "\n"
+        except Exception as e:
+            st.error(f"Erro ao processar PDF: {e}")
+    return texto_completo
+
 # 4. Interface do Usuário
-st.markdown("<h1>💼 Oracle Judicial - PRO</h1>", unsafe_allow_html=True)
-st.markdown("<h3>Auditoria Cruzada e Exportação de Pareceres ⚖️</h3>", unsafe_allow_html=True)
+st.markdown('<p class="main-title">💼 Oracle Judicial - PRO</p>', unsafe_allow_html=True)
 st.write("---")
 
-st.subheader("1. Construa o Dossiê")
-arquivos_pdf = st.file_uploader("Upload de PDFs", type="pdf", accept_multiple_files=True, label_visibility="collapsed")
+st.subheader("1. Dossiê Digital (Upload)")
+arquivos_pdf = st.file_uploader("Suba seus arquivos PDF", type="pdf", accept_multiple_files=True)
 
-st.write("")
+st.subheader("2. Comandos do Oráculo")
+user_prompt = st.text_area("O que deseja que eu analise?", placeholder="Ex: Resuma os principais riscos desta ação...", height=150)
 
-st.subheader("2. Análise Estratégica & Cognição")
-user_prompt = st.text_area("Comande a Inteligência:", placeholder="Ex: Analise contradições entre os documentos...", height=150)
-
-if st.button("Gerar Parecer Estratégico"):
-    if not arquivos_pdf:
-        st.warning("Por favor, suba os arquivos PDF.")
-    elif not user_prompt:
-        st.warning("Por favor, digite sua pergunta.")
+if st.button("Iniciar Auditoria Cognitiva", use_container_width=True):
+    if not arquivos_pdf or not user_prompt:
+        st.warning("Aguardando documentos e comandos...")
     else:
-        with st.spinner("Processando cognição jurídica..."):
-            st.success("Conexão com Gemini estabelecida com sucesso!")
-            st.info("Sistema pronto para análise.")
+        with st.spinner("O Oráculo está lendo os autos..."):
+            # Extração
+            texto_extraido = extrair_texto_pdf(arquivos_pdf)
+            
+            if len(texto_extraido.strip()) < 5:
+                st.error("Não consegui ler o texto desses PDFs. Eles podem ser imagens ou estar protegidos.")
+            else:
+                # Construção do Contexto para o Gemini
+                prompt_sistema = f"""
+                Você é o Oracle Judicial PRO.
+                Abaixo está o texto extraído de documentos judiciais reais.
+                Analise com precisão técnica.
+                
+                CONTEXTO:
+                {texto_extraido}
+                
+                SOLICITAÇÃO DO ADVOGADO:
+                {user_prompt}
+                """
+                
+                try:
+                    response = client_gemini.models.generate_content(
+                        model=MODELO_IA,
+                        contents=prompt_sistema
+                    )
+                    
+                    st.markdown("### 📜 Parecer Estratégico:")
+                    st.write(response.text)
+                    st.success("Análise concluída!")
+                    
+                except Exception as e:
+                    st.error(f"Erro na IA: {e}")
 
 st.write("---")
 st.caption("Oracle Judicial PRO © 2026")
