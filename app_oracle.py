@@ -11,56 +11,31 @@ st.markdown("""
     <style>
     [data-testid="stHeader"], header, footer, .stAppDeployButton, #MainMenu {visibility: hidden; display: none;}
     .block-container {padding-top: 1rem !important;}
-    
-    /* Fontes e Títulos em Preto */
-    .main-title {
-        color: #000000; 
-        font-size: 48px !important; 
-        font-weight: 850; 
-        text-align: center; 
-        margin-bottom: 5px;
-    }
-    .subtitle {
-        color: #000000;
-        text-align: center;
-        font-size: 16px;
-        font-weight: 500;
-        margin-bottom: 2rem;
-    }
-    
-    h3 {
-        color: #000000 !important;
-        font-size: 22px !important;
-        font-weight: 700 !important;
-        border-bottom: 1px solid #000000;
-        padding-bottom: 5px;
-    }
-
-    /* Botão Preto e Menor */
-    .stButton {
-        display: flex;
-        justify-content: center;
-    }
+    .main-title { color: #000000; font-size: 48px !important; font-weight: 850; text-align: center; margin-bottom: 5px; }
+    .subtitle { color: #000000; text-align: center; font-size: 16px; font-weight: 500; margin-bottom: 2rem; }
+    h3 { color: #000000 !important; font-size: 22px !important; font-weight: 700 !important; border-bottom: 1px solid #000000; padding-bottom: 5px; }
+    .stButton { display: flex; justify-content: center; }
     .stButton>button {
-        background-color: #000000 !important;
-        color: white !important;
-        font-weight: bold !important;
-        border-radius: 2px !important;
-        padding: 10px 40px !important; /* Tamanho reduzido */
-        width: auto !important;
-        border: none !important;
-        transition: 0.3s;
-    }
-    .stButton>button:hover {
-        background-color: #333333 !important;
+        background-color: #000000 !important; color: white !important; font-weight: bold !important;
+        border-radius: 2px !important; padding: 10px 40px !important; width: auto !important; border: none !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Lógica de Segurança
+# 3. Lógica de Segurança e Instrução de Sistema (System Instruction)
 try:
     MINHA_CHAVE = st.secrets["GOOGLE_API_KEY"]
     client_gemini = genai.Client(api_key=MINHA_CHAVE)
+    
+    # DEFINIÇÃO DO PERSONAGEM ESTRATÉGICO
+    INSTRUCAO_SISTEMA = (
+        "Você é o Oracle Judicial PRO, uma IA de elite especializada em análise estratégica de processos judiciais. "
+        "Sua missão é ler documentos jurídicos e fornecer pareceres técnicos, sóbrios e altamente precisos. "
+        "Ao responder: 1) Seja formal e direto. 2) Se encontrar contradições, destaque-as. "
+        "3) Organize sua resposta em seções: 'RESUMO EXECUTIVO', 'PONTOS CRÍTICOS/RISCOS' e 'SUGESTÃO ESTRATÉGICA'. "
+        "Sempre baseie suas conclusões exclusivamente nos documentos fornecidos."
+    )
+    
     MODELO_IA = "gemini-2.5-flash" 
 except Exception:
     st.error("Erro de Autenticação nos Secrets.")
@@ -83,35 +58,33 @@ st.markdown('<p class="subtitle">INTELIGÊNCIA JURÍDICA DE ALTA PERFORMANCE</p>
 
 with st.expander("📖 Guia de Utilização Rápida", expanded=True):
     st.markdown("""
-    * **Carregamento:** Arraste os arquivos PDF do processo para a área abaixo.
-    * **Análise:** No campo de texto, descreva o que você busca (ex: "Aponte contradições na defesa").
-    * **Processamento:** O motor 2.5 Flash cruzará todos os dados em segundos.
+    * **Carregamento:** Arraste os arquivos PDF do processo abaixo.
+    * **Análise:** Descreva o que você busca identificar nos autos.
+    * **Processamento:** O motor 2.5 Flash aplicará a diretriz estratégica ao conteúdo.
     """)
 
 st.write("---")
-
 st.subheader("📂 Central de Documentos")
 arquivos_pdf = st.file_uploader("Upload", type="pdf", accept_multiple_files=True, label_visibility="collapsed")
 
 st.subheader("⚖️ Teses e Requerimentos")
-user_prompt = st.text_area("Descreva a análise técnica:", 
-                         placeholder="Ex: Identifique nulidades processuais...", 
-                         height=150)
+user_prompt = st.text_area("Descreva a análise técnica:", placeholder="Ex: Analise o depoimento da testemunha X em face da petição inicial...", height=150)
 
-# 5. Ação
+# 5. Ação com System Instruction integrada
 if st.button("INICIAR ANÁLISE"):
     if not arquivos_pdf or not user_prompt:
         st.warning("Aguardando documentos e instruções.")
     else:
-        with st.spinner("⏳ Processando..."):
+        with st.spinner("⏳ Oráculo processando sob diretrizes estratégicas..."):
             contexto = extrair_texto(arquivos_pdf)
             if len(contexto.strip()) < 10:
                 st.error("Falha na leitura dos documentos.")
             else:
                 try:
+                    # O Motor 2.5 Flash agora recebe a instrução de sistema
                     response = client_gemini.models.generate_content(
                         model=MODELO_IA,
-                        contents=[f"CONTEXTO:\n{contexto}", f"INSTRUÇÃO:\n{user_prompt}"],
+                        contents=[f"INSTRUÇÃO DE SISTEMA: {INSTRUCAO_SISTEMA}", f"CONTEXTO DOS AUTOS: {contexto}", f"PEDIDO DO USUÁRIO: {user_prompt}"],
                         config={"temperature": 0.1}
                     )
                     st.markdown("### 📜 Parecer Estratégico")
