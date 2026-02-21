@@ -5,9 +5,6 @@ import pypdf
 
 st.set_page_config(page_title="Oracle Judicial - PRO", page_icon="💼", layout="centered")
 
-# ==========================================
-# 🕵️ MODO DETETIVE: O QUE TEM NO COFRE?
-# ==========================================
 st.warning(f"Chaves que o sistema está enxergando agora: {list(st.secrets.keys())}")
 
 try:
