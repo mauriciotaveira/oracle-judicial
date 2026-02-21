@@ -15,16 +15,24 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Conexão com a Chave (Atenção: Espaços organizados aqui!)
+# 3. Conexão com a Chave (CORRIGIDO PARA BUSCAR DOS SECRETS)
 try:
-    # O código busca nos Secrets a chave que você atualizou
-    MINHA_CHAVE = st.secrets["AIzaSyAKLtUNtd6mrwP11Tj1YGC5vZu6F1U0yQo"]
+    # AQUI ESTAVA O ERRO: Não colocamos o código AIza aqui, colocamos o NOME da gaveta.
+    if "GOOGLE_API_KEY" in st.secrets:
+        MINHA_CHAVE = st.secrets["AIzaSyBrO6dUaduR4KctMMvOErW_4UtvvPyvcY4"]
+    else:
+        # Tenta buscar em uma estrutura secundária se o Streamlit mudar
+        MINHA_CHAVE = st.secrets.get("default", {}).get("GOOGLE_API_KEY")
+
+    if not MINHA_CHAVE:
+        st.error("Chave 'GOOGLE_API_KEY' não encontrada nos Secrets do Streamlit.")
+        st.stop()
+
     client_gemini = genai.Client(api_key=MINHA_CHAVE)
-    
-    # AQUI O MOTOR 2.5 ESTÁ DEFINIDO COMO PADRÃO
     MODELO_IA = "gemini-2.5-flash" 
+    
 except Exception as e:
-    st.error("Erro na Chave API. Verifique os Secrets no painel do Streamlit.")
+    st.error(f"Erro na conexão com a API: {e}")
     st.stop()
 
 # --- FUNÇÃO TÉCNICA DE LEITURA ---
@@ -59,21 +67,19 @@ if st.button("Executar Análise de Elite", use_container_width=True):
         st.warning("Por favor, forneça documentos e um comando.")
     else:
         with st.spinner("🚀 Oráculo 2.5 Flash em alta rotação..."):
-            # Extração de texto
             texto_extraido = extrair_texto_pdf(arquivos_pdf)
             
             if len(texto_extraido.strip()) < 10:
                 st.error("Não foi possível extrair texto. O PDF pode ser uma imagem protegida.")
             else:
                 try:
-                    # O motor 2.5 Flash entra em ação aqui
                     response = client_gemini.models.generate_content(
                         model=MODELO_IA,
                         contents=[
                             f"CONTEXTO DOS DOCUMENTOS:\n{texto_extraido}",
                             f"SOLICITAÇÃO DO ADVOGADO:\n{user_prompt}"
                         ],
-                        config={"temperature": 0.1} # Foco total em precisão
+                        config={"temperature": 0.1}
                     )
                     
                     st.markdown("### 📜 Parecer Estratégico:")
