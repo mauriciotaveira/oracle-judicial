@@ -6,20 +6,23 @@ import pypdf
 st.set_page_config(page_title="Oracle Judicial - PRO", page_icon="💼", layout="centered")
 
 # ==========================================
-# 👇 SEGURANÇA E CONFIGURAÇÃO DA IA (NUVEM)
+# 🕵️ MODO DETETIVE: O QUE TEM NO COFRE?
 # ==========================================
+st.warning(f"Chaves que o sistema está enxergando agora: {list(st.secrets.keys())}")
+
 try:
-    MINHA_CHAVE = st.secrets.get("AIzaSyBWDEZqhRjjujVpxBogNJ16vFqMbMEqXRA")
-except:
-    MINHA_CHAVE = None
-
-MODELO_IA = "gemini-2.5-flash"
-
-if MINHA_CHAVE:
+    # Tentando puxar do jeito direto
+    MINHA_CHAVE = st.secrets["GOOGLE_API_KEY"]
+    MODELO_IA = "gemini-2.5-flash"
     client_gemini = genai.Client(api_key=MINHA_CHAVE)
-else:
-    st.error("⚠️ Chave API não encontrada. Configure os Secrets no painel do Streamlit.")
-    st.stop() # Trava o app até a chave ser colocada
+    st.success("✅ Chave encontrada e conectada!")
+except Exception as e:
+    st.error(f"⚠️ Erro ao ler a chave ou conectar: {e}")
+    st.stop()
+
+# ==========================================
+# 🧠 BANCO DE DADOS (MEMÓRIA DO ORÁCULO)
+# (O resto do seu código continua daqui para baixo igualzinho...)
 
 # ==========================================
 # 🧠 BANCO DE DADOS (MEMÓRIA DO ORÁCULO)
