@@ -3,10 +3,10 @@ from google import genai
 from pypdf import PdfReader 
 import pandas as pd
 
-# 1. Configuração de Página (Primeira linha sempre!)
+# 1. Configuração de Página
 st.set_page_config(page_title="Oracle Judicial - PRO", page_icon="💼", layout="centered")
 
-# 2. CSS de Limpeza Profissional
+# 2. CSS de Limpeza
 st.markdown("""
     <style>
     [data-testid="stHeader"], header, footer, .stAppDeployButton, #MainMenu {visibility: hidden; display: none;}
@@ -15,31 +15,17 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Lógica da Chave API (Corrigida para usar o nome da gaveta nos Secrets)
+# 3. Lógica da Chave API (Agora com Indentação Correta)
 try:
-    # Aqui usamos o nome da variável configurada no Streamlit Cloud
-    # NO VS CODE (app_oracle.py)
-try:
-    # O comando abaixo NÃO deve ter o código AIza...
-    # Ele deve ter apenas o NOME que você salvou no painel do Streamlit
-    # FORMA CORRETA (Copie e cole estas 3 linhas)
-try:
-    # O segredo é chamar pelo NOME "GOOGLE_API_KEY", não pelo valor AIza...
-    MINHA_CHAVE = st.secrets["GOOGLE_API_KEY"] 
+    # Esta linha abaixo TEM que estar empurrada para a direita
+    MINHA_CHAVE = st.secrets["AIzaSyAKLtUNtd6mrwP11Tj1YGC5vZu6F1U0yQo"]
     client_gemini = genai.Client(api_key=MINHA_CHAVE)
     MODELO_IA = "gemini-2.5-flash"
 except Exception as e:
-    st.error("Erro na Chave API. Verifique os Secrets no painel do Streamlit.")
-    st.stop()
-    
-    # MOTOR DE FÓRMULA 1 ATIVADO: Gemini 2.5 Flash
-    MODELO_IA = "gemini-2.5-flash" 
-except Exception as e:
-    st.error(f"Erro na Chave API: {e}")
-    st.info("Verifique se 'GOOGLE_API_KEY' está nos Secrets do Streamlit.")
+    st.error("Erro na Chave API. Verifique os Secrets.")
     st.stop()
 
-# --- FUNÇÃO DE EXTRAÇÃO (OTIMIZADA) ---
+# --- FUNÇÃO DE EXTRAÇÃO ---
 def extrair_texto_pdf(arquivos_pdf):
     texto_completo = ""
     for pdf in arquivos_pdf:
@@ -61,43 +47,34 @@ st.subheader("1. Dossiê Digital (Upload)")
 arquivos_pdf = st.file_uploader("Suba seus arquivos PDF", type="pdf", accept_multiple_files=True)
 
 st.subheader("2. Comandos do Oráculo 2.5 Flash")
-user_prompt = st.text_area("O que deseja que eu analise?", placeholder="Ex: Analise o risco de sucumbência baseado nesta contestação...", height=150)
+user_prompt = st.text_area("O que deseja que eu analise?", placeholder="Ex: Analise o mérito desta petição...", height=150)
 
-# 5. Execução com Alta Performance
+# 5. Execução
 if st.button("Iniciar Auditoria Cognitiva", use_container_width=True):
     if not arquivos_pdf or not user_prompt:
-        st.warning("Aguardando documentos e comandos...")
+        st.warning("Documentos e comandos ausentes.")
     else:
-        with st.spinner("🚀 Motor 2.5 Flash em alta rotação... Analisando autos."):
-            # Extração de texto
+        with st.spinner("🚀 Oráculo 2.5 Flash em alta performance..."):
             texto_extraido = extrair_texto_pdf(arquivos_pdf)
             
             if len(texto_extraido.strip()) < 5:
-                st.error("Documentos sem texto legível (precisam de OCR).")
+                st.error("Documentos sem texto legível.")
             else:
-                # Configuração de Resposta Rápida
-                config_ia = {
-                    "temperature": 0.1,  # Máxima precisão jurídica
-                    "top_p": 0.95,
-                }
-                
+                config_ia = {"temperature": 0.1}
                 try:
-                    # Envio direto para o Long Context do 2.5 Flash
                     response = client_gemini.models.generate_content(
                         model=MODELO_IA,
                         contents=[
-                            f"CONTEXTO JURÍDICO DOS DOCUMENTOS:\n{texto_extraido}",
-                            f"PERGUNTA DO ADVOGADO:\n{user_prompt}"
+                            f"CONTEXTO JURÍDICO:\n{texto_extraido}",
+                            f"PERGUNTA:\n{user_prompt}"
                         ],
                         config=config_ia
                     )
-                    
-                    st.markdown("### 📜 Parecer Estratégico (Elite):")
+                    st.markdown("### 📜 Parecer Estratégico:")
                     st.write(response.text)
-                    st.success("Análise concluída com motor 2.5 Flash!")
-                    
+                    st.success("Análise concluída!")
                 except Exception as e:
-                    st.error(f"Erro no processamento da IA: {e}")
+                    st.error(f"Erro na IA: {e}")
 
 st.write("---")
-st.caption("Oracle Judicial PRO © 2026 | Powered by Gemini 2.5 Flash")
+st.caption("Oracle Judicial PRO © 2026")
