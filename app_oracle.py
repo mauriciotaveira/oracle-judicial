@@ -3,7 +3,7 @@ from google import genai
 from pypdf import PdfReader 
 
 # 1. Configuração de Página
-st.set_page_config(page_title="Oracle Judicial PRO", page_icon="⚖️", layout="centered")
+st.set_page_config(page_title="Auditor Jurídico PRO", page_icon="⚖️", layout="centered")
 
 # Inicialização da Memória
 if "historico" not in st.session_state:
@@ -51,7 +51,7 @@ try:
     MODELO_IA = "gemini-2.5-flash"
     
     INSTRUCAO_SISTEMA = (
-        "Você é o Oracle Judicial PRO, auditor jurídico. "
+        "Você é o Auditor Jurídico PRO, um auditor jurídico de elite. "
         "Sua análise deve ser cirúrgica. Estruture com: RESUMO EXECUTIVO, PONTOS CRÍTICOS e SUGESTÃO ESTRATÉGICA. "
         "Use negrito para destacar valores e nomes. Mantenha sobriedade máxima."
     )
@@ -71,7 +71,7 @@ def extrair_texto(arquivos):
     return texto_total
 
 # 4. Interface
-st.markdown('<p class="main-title">Oracle Judicial PRO</p>', unsafe_allow_html=True)
+st.markdown('<p class="main-title">Auditor Jurídico PRO</p>', unsafe_allow_html=True)
 st.markdown('<p class="subtitle">INTELIGÊNCIA JURÍDICA DE ALTA PERFORMANCE</p>', unsafe_allow_html=True)
 
 st.write("---")
@@ -125,9 +125,9 @@ if st.session_state.historico:
     st.download_button(
         label="📄 BAIXAR RELATÓRIO",
         data=st.session_state.historico[-1]["content"],
-        file_name="relatorio_oracle.txt",
+        file_name="relatorio_auditor_juridico.txt",
         mime="text/plain",
         use_container_width=True
     )
 
-st.markdown("<br><br><center><small>Oracle Judicial PRO | © 2026</small></center>", unsafe_allow_html=True)
+st.markdown("<br><br><center><small>Auditor Jurídico PRO | © 2026</small></center>", unsafe_allow_html=True)
