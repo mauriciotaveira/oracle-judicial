@@ -1,1 +1,2 @@
-.streamlit/
+.streamlit/.DS_Store
+__pycache__/
