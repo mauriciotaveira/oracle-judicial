@@ -104,7 +104,7 @@ if btn_processar:
 # ==========================================
 # 5. A INTERFACE PRINCIPAL (UX REVISADA)
 # ==========================================
-st.title("⚖️ Auditor Jurídico Master AI")
+st.title("⚖️ Auditor Jurídico Premium")
 
 if st.session_state.relatorio_denso:
     
