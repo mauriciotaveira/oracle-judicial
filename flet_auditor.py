@@ -6,7 +6,7 @@ import subprocess # A nossa nova arma secreta!
 # ==========================================
 # 1. CONFIGURAÇÃO DA IA
 # ==========================================
-CHAVE_API = "AIzaSyBF7n0ADLUBSSvrQu48fehHL-KPw5Fm3VI" 
+CHAVE_API = "SUA_CHAVE_API_AQUI" 
 genai.configure(api_key=CHAVE_API)
 modelo = genai.GenerativeModel('gemini-2.5-flash') 
 
